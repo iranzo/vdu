@@ -1,0 +1,77 @@
+parameters:
+  cluster: cluster
+  tag: '4.18'
+  version: 'stable'
+  domain: karmalabs.corp
+  number: 0
+  network: default
+  cidr: 192.168.122.0/24
+
+{{ network }}:
+  type: network
+  cidr: {{ cidr }}
+  disks:
+   - size: 100
+   - size: 100
+
+
+{% set num = 0 %}
+
+{% set api_ip = cidr|network_ip(200 + num ) %}
+
+{% set cluster = 'hub' %}
+
+hub:
+  type: cluster
+  kubetype: openshift
+  domain: {{ domain }}
+  ctlplanes: 3
+  api_ip: {{ api_ip }}
+  numcpus: 16
+  memory: 32768  
+
+api-hub:
+ type: dns
+ net: {{ network }}
+ ip: {{ api_ip }}
+ alias:
+ - api.{{ cluster }}.{{ domain }}
+ - api-int.{{ cluster }}.{{ domain }}
+
+{% if num == 0 %}
+apps-hub:
+ type: dns
+ net: {{ network }}
+ ip: {{ api_ip }}
+ alias:
+ - console-openshift-console.apps.{{ cluster }}.{{ domain }}
+ - oauth-openshift.apps.{{ cluster }}.{{ domain }}
+ - prometheus-k8s-openshift-monitoring.apps.{{ cluster }}.{{ domain }}
+ - canary-openshift-ingress-canary.apps.{{ cluster }}.{{ domain }}
+ - multicloud-console.apps.{{ cluster }}.{{ domain }}
+{% endif %}
+
+
+{% for num in range(1, number) %}
+{% set api_ip = cidr|network_ip(200 + num ) %}
+{% set cluster = "cluster" %}
+
+cluster{{ num }}:
+  type: cluster
+  kubetype: openshift
+  domain: {{ domain }}
+  ctlplanes: 1
+  api_ip: {{ api_ip }}
+  numcpus: 16
+  memory: 18384
+
+api-cluster{{ num}}:
+ type: dns
+ net: {{ network }}
+ ip: {{ api_ip }}
+ alias:
+ - api.{{ cluster }}{{ num }}.{{ domain }}
+ - api-int.{{ cluster }}{{ num }}.{{ domain }}
+
+{% endfor %}
+
