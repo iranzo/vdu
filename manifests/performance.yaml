@@ -5,8 +5,8 @@ metadata:
   name: master
 spec:
   cpu:
-    isolated: 4-16
-    reserved: 0,1,2,3
+    isolated: 0-1
+    reserved: 3-4
   hugepages:
     defaultHugepagesSize: "1G"
     pages:
@@ -19,3 +19,12 @@ spec:
     enabled: true
   nodeSelector:
     node-role.kubernetes.io/master: ""
+---
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: "master"
+  name: 99-master-realtime
+spec:
+  kernelType: realtime
