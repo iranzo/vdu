@@ -2,3 +2,4 @@
 resources:
   - ptp.yaml
   - sriov.yaml
+  - localstorageoperator.yaml
