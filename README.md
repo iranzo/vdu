@@ -2,7 +2,7 @@
 
 vDU makes use of a SNO OpenShift deployment.
 
-In this case, we want to define an hyperconverged cluster with 3 master nodes and no workers
+In this case, we want to define an hyperconverged cluster with 3 master nodes and no workers.
 
 ## Requirements
 
@@ -109,3 +109,5 @@ watch -d 'oc get clusterversion; oc get nodes; oc get co'
 ## Configure the cluster
 
 According to the [documentation](https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html-single/scalability_and_performance/index#telco-ran-du-reference-design-components_telco-ran-du) we've several components required for our system:
+
+![DU Profile schema](du.png)
