@@ -1,1 +1,2 @@
 .pushhost
+node_modules/*
