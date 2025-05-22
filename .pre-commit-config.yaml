@@ -1,4 +1,5 @@
 ---
+exclude: "kcli_plan.yml"
 fail_fast: true
 repos:
   - hooks:
