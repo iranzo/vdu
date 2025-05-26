@@ -4,6 +4,12 @@ kind: PerformanceProfile
 metadata:
   name: master
 spec:
+  additionalKernelArgs:
+    - "rcupdate.rcu_normal_after_boot=0"
+    - "efi=runtime"
+    - "vfio_pci.enable_sriov=1"
+    - "vfio_pci.disable_idle_d3=1"
+    - "module_blacklist=irdma"
   cpu:
     isolated: 0-1
     reserved: 3-4
@@ -14,11 +20,17 @@ spec:
         count: 16
         node: 0
   numa:
-    topologyPolicy: best-effort
+    topologyPolicy: restricted
   realTimeKernel:
     enabled: true
   nodeSelector:
     node-role.kubernetes.io/master: ""
+  machineConfigPoolSelector:
+    machineconfiguration.openshift.io/role: master
+  workloadHints:
+    highPowerConsumption: false
+    perPodPowerManagement: false
+    realTime: true
 ---
 apiVersion: machineconfiguration.openshift.io/v1
 kind: MachineConfig
