@@ -3,3 +3,5 @@ resources:
   - ptp.yaml
   - sriov.yaml
   - localstorageoperator.yaml
+  - performance.yaml
+  - virt.yaml
