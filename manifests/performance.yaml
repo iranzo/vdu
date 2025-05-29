@@ -5,11 +5,18 @@ metadata:
   name: master
 spec:
   additionalKernelArgs:
-    - "rcupdate.rcu_normal_after_boot=0"
+    - "audit=0"
     - "efi=runtime"
-    - "vfio_pci.enable_sriov=1"
-    - "vfio_pci.disable_idle_d3=1"
+    - "idle=poll"
+    - "intel_idle.max_cstate=0"
+    - "mce=off"
     - "module_blacklist=irdma"
+    - "nmi_watchdog=0"
+    - "nosmt"
+    - "processor.max_cstate=1"
+    - "rcupdate.rcu_normal_after_boot=0"
+    - "vfio_pci.disable_idle_d3=1"
+    - "vfio_pci.enable_sriov=1"
   cpu:
     isolated: 0-1
     reserved: 3-4
