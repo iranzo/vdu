@@ -17,6 +17,7 @@ spec:
     - "rcupdate.rcu_normal_after_boot=0"
     - "vfio_pci.disable_idle_d3=1"
     - "vfio_pci.enable_sriov=1"
+    - "rcutree.nohz_full_patience_delay=1000"
   cpu:
     isolated: 0-1
     reserved: 3-4
