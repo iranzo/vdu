@@ -5,3 +5,4 @@ resources:
   - localstorageoperator.yaml
   - performance.yaml
   - virt.yaml
+  - grafana.yaml
