@@ -2,7 +2,7 @@
 apiVersion: performance.openshift.io/v1alpha1
 kind: PerformanceProfile
 metadata:
-  name: master
+  name: vpacperformance
 spec:
   additionalKernelArgs:
     - "audit=0"

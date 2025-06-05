@@ -27,8 +27,8 @@ hub:
   domain: {{ domain }}
   ctlplanes: 3
   api_ip: {{ api_ip }}
-  numcpus: 16
-  memory: 32768  
+  numcpus: 24
+  memory: 36768  
 
 api-hub:
  type: dns
