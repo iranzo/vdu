@@ -1,0 +1,34 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: openshift-workload-availability
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: self-node-remediation
+  namespace: openshift-workload-availability
+spec:
+  channel: stable
+  installPlanApproval: Automatic
+  name: self-node-remediation
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+---
+apiVersion: self-node-remediation.medik8s.io/v1alpha1
+kind: SelfNodeRemediationConfig
+metadata:
+  name: self-node-remediation-config
+  namespace: openshift-workload-availability
+spec:
+  safeTimeToAssumeNodeRebootedSeconds: 180
+  watchdogFilePath: /dev/watchdog
+  isSoftwareRebootEnabled: true
+  apiServerTimeout: 15s
+  apiCheckInterval: 5s
+  maxApiErrorThreshold: 3
+  peerApiServerTimeout: 5s
+  peerDialTimeout: 5s
+  peerRequestTimeout: 5s
+  peerUpdateInterval: 15m

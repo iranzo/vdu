@@ -11,8 +11,8 @@ parameters:
   type: network
   cidr: {{ cidr }}
   disks:
-   - size: 100
-   - size: 100
+   - size: 200
+   - size: 200
 
 
 {% set num = 0 %}

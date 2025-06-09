@@ -6,3 +6,4 @@ resources:
   - performance.yaml
   - virt.yaml
   - grafana.yaml
+  - noderemediation.yaml
