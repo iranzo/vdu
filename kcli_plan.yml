@@ -29,6 +29,9 @@ hub:
   api_ip: {{ api_ip }}
   numcpus: 24
   memory: 36768  
+  disk_size: 200
+  extra_disks:
+  - 200
 
 api-hub:
  type: dns
