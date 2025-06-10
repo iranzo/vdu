@@ -4,17 +4,33 @@ kind: Namespace
 metadata:
   name: openshift-workload-availability
 ---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: workload-availability-operator-group
+  namespace: openshift-workload-availability
+---
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
-  name: self-node-remediation
+  name: self-node-remediation-operator
   namespace: openshift-workload-availability
 spec:
-  channel: stable
-  installPlanApproval: Automatic
+  channel: "stable"
   name: self-node-remediation
   source: redhat-operators
   sourceNamespace: openshift-marketplace
+  installPlanApproval: Automatic
+---
+apiVersion: self-node-remediation.medik8s.io/v1alpha1
+kind: SelfNodeRemediationTemplate
+metadata:
+  name: self-node-remediation-automatic-strategy-template
+  namespace: openshift-workload-availability
+spec:
+  template:
+    spec:
+      remediationStrategy: ResourceDeletion
 ---
 apiVersion: self-node-remediation.medik8s.io/v1alpha1
 kind: SelfNodeRemediationConfig
@@ -32,3 +48,4 @@ spec:
   peerDialTimeout: 5s
   peerRequestTimeout: 5s
   peerUpdateInterval: 15m
+  hostPort: 30001

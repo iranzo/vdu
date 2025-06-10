@@ -7,3 +7,4 @@ resources:
   - virt.yaml
   - grafana.yaml
   - noderemediation.yaml
+  - nodehealthcheck.yaml
