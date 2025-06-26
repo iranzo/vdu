@@ -11,8 +11,8 @@ parameters:
   type: network
   cidr: {{ cidr }}
   disks:
-   - size: 200
-   - size: 200
+   - size: 100
+   - size: 100
 
 
 {% set num = 0 %}
@@ -27,11 +27,14 @@ hub:
   domain: {{ domain }}
   ctlplanes: 3
   api_ip: {{ api_ip }}
-  numcpus: 24
-  memory: 36768  
-  disk_size: 200
+  numcpus: 8
+  memory: 24576
+  disk_size: 100
   extra_disks:
-  - 200
+  - 100
+  disks:
+   - size: 100
+   
 
 api-hub:
  type: dns
@@ -65,8 +68,8 @@ cluster{{ num }}:
   domain: {{ domain }}
   ctlplanes: 1
   api_ip: {{ api_ip }}
-  numcpus: 16
-  memory: 18384
+  numcpus: 8
+  memory: 24576
 
 api-cluster{{ num}}:
  type: dns
