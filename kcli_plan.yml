@@ -1,6 +1,6 @@
 parameters:
   cluster: cluster
-  tag: '4.18'
+  tag: '4.19'
   version: 'stable'
   domain: karmalabs.corp
   number: 0
