@@ -1,13 +1,13 @@
 ---
 exclude: "kcli_plan.yml"
-fail_fast: true
+fail_fast: false
 repos:
   - hooks:
       - id: commitizen
         stages:
           - commit-msg
     repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.7.0
+    rev: v4.8.3
   - hooks:
       - id: check-useless-excludes
     repo: meta
@@ -36,9 +36,7 @@ repos:
       - id: check-vcs-permalinks
       - id: debug-statements
       - id: check-xml
-      - args:
-          - --unsafe
-        id: check-yaml
+
       - id: end-of-file-fixer
       - id: forbid-new-submodules
       - args:
@@ -55,20 +53,20 @@ repos:
     repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    # Ruff version.
-    rev: v0.11.9
+  # Ruff version.
+    rev: v0.12.2
     hooks:
-      # Run the linter.
+  # Run the linter.
       - id: ruff
         args:
           - --fix
-      # Run the formatter.
+  # Run the formatter.
       - id: ruff-format
 
   - repo: https://github.com/scop/pre-commit-shfmt
     rev: v3.11.0-1
     hooks:
-      # Choose one of:
+  # Choose one of:
       - id: shfmt # native (requires/installs Go to build)
         args:
           - -w
@@ -83,14 +81,53 @@ repos:
     repo: https://github.com/asottile/blacken-docs
     rev: 1.19.1
 
-  # - repo: https://github.com/asottile/pyupgrade
-  #   rev: v2.38.0
-  #   hooks:
-  #     - id: pyupgrade
-  #       args: [--py39-plus]
+# - repo: https://github.com/asottile/pyupgrade
+#   rev: v2.38.0
+#   hooks:
+#     - id: pyupgrade
+#       args: [--py39-plus]
 
   - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
     rev: 0.2.3 # or other specific tag
     hooks:
       - id: yamlfmt
-        args: [--mapping, "2", --sequence, "4", --offset, "2", "--preserve-quotes"]
+        args: [--mapping, "2", --sequence, "4", --offset, "2", --preserve-quotes]
+
+# Jinja2 template validation
+  - repo: https://github.com/Riverside-Healthcare/djLint
+    rev: v1.36.4
+    hooks:
+      - id: djlint
+        files: \.(j2|jinja|jinja2|yml)$
+        args: ["--check"]
+      - id: djlint-reformat
+        files: \.(j2|jinja|jinja2|yml)$
+
+# Git commit message validation (additional)
+  - repo: https://github.com/jorisroovers/gitlint
+    rev: v0.19.1
+    hooks:
+      - id: gitlint
+        stages: [commit-msg]
+
+# Shell script analysis
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+
+# Dockerfile linting (if any Dockerfiles are added)
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.13.1-beta
+    hooks:
+      - id: hadolint-docker
+
+# File size and naming conventions
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-toml
+      - id: name-tests-test
+        args: ["--pytest-test-first"]
+      - id: check-shebang-scripts-are-executable
+      - id: fix-byte-order-marker

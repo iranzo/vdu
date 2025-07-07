@@ -1,2 +1,6 @@
 .pushhost
 node_modules/*
+
+# Pre-commit and security scan results
+kics-results/
+.secrets.baseline.tmp

@@ -129,5 +129,5 @@ hub-ctlplane-2.karmalabs.corp   Ready    control-plane,master,worker   5d22h   v
 If we want to update our cluster (via `oc adm upgrade`) we might need to acknowledge the changes to API via:
 
 ```sh
-$ oc -n openshift-config patch cm admin-acks --patch '{"data":{"ack-4.18-kube-1.32-api-removals-in-4.19":"true"}}' --type=merge
+oc -n openshift-config patch cm admin-acks --patch '{"data":{"ack-4.18-kube-1.32-api-removals-in-4.19":"true"}}' --type=merge
 ```
