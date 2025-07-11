@@ -18,4 +18,5 @@ resources:
   - 70-ReduceMonitoringFootprint.yaml
   - 70-ReduceOLMFootprint.yaml
   - 70-TunedPerformancePatch.yaml
+  - localvolumeset.yaml
   - scale-monitoring.yaml
