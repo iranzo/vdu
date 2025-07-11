@@ -8,3 +8,14 @@ resources:
   - grafana.yaml
   - noderemediation.yaml
   - nodehealthcheck.yaml
+  - 01-container-mount-ns-and-kubelet-conf-master.yaml
+  - 04-accelerated-container-startup-master.yaml
+  - 06-kdump-master.yaml
+  - 51-crio-disable-wipe-master.yaml
+  - 51-crio-enable-crun-master.yaml
+  - 52-chrony-master.yaml
+  - 52-chrony-sync-time-once-master.yaml
+  - 70-ReduceMonitoringFootprint.yaml
+  - 70-ReduceOLMFootprint.yaml
+  - 70-TunedPerformancePatch.yaml
+  - scale-monitoring.yaml
