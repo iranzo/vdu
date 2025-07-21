@@ -30,3 +30,18 @@ kind: HyperConverged
 metadata:
   name: kubevirt-hyperconverged
   namespace: openshift-cnv
+spec:
+  infra:
+    nodePlacement:
+      nodeSelector:
+        node-role.kubernetes.io/master: ""
+  workloads:
+    nodePlacement:
+      nodeSelector:
+        node-role.kubernetes.io/master: ""
+  featureGates:
+    enableCommonBootImageImport: true
+    deployVmConsoleProxy: true
+  virtualMachineOptions:
+    disableFreePageReporting: false
+    disableSerialConsoleLog: false
