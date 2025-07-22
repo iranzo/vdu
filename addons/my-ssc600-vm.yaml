@@ -1,0 +1,57 @@
+---
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: my-ssc600-vm
+  namespace: default # Or your desired namespace for VMs
+spec:
+  running: false # Set to true to start the VM immediately after creation
+  template:
+    metadata:
+      labels:
+        app: my-ssc600-vm
+        # Add labels for CPU partitioning if you have a PerformanceProfile
+        # and want this VM to use isolated CPUs.
+        # Example: kubevirt.io/dedicated-cpu-placement: "true"
+        # Refer to your specific PerformanceProfile configuration for correct labels.
+    spec:
+      domain:
+        cpu:
+          cores: 2 # Number of vCPUs for the VM. Adjust as needed.
+          # If using CPU partitioning, you might add model: host-passthrough
+          # and ensure your PerformanceProfile aligns.
+        memory:
+          # Request memory for the VM. Adjust as needed.
+          # Consider the memory overhead of OpenShift Virtualization.
+          guest: 2Gi # Example: 2 GiB of RAM.
+        devices:
+          disks:
+            - name: rootdisk
+              bootOrder: 1
+              disk:
+                bus: virtio # Recommended bus for performance
+          # Reference the PVC created by the DataVolume
+          volumes:
+            - name: rootdisk
+              persistentVolumeClaim:
+                claimName: ssc600-vm-disk # Name of the PVC created by the DataVolume
+      # evictionStrategy: LiveMigrate is crucial for automatic live migration
+      # when a node is drained or goes into maintenance.
+      # Requires the VM's disk to be on RWX storage (which ocs-storagecluster-ceph-rbd provides).
+      evictionStrategy: LiveMigrate
+      # Configure networking for your VM.
+      # This example uses the default pod network.
+      networks:
+        - name: default
+          pod: {}
+      volumes:
+        - name: default
+          cloudInitNoCloud:
+            userData: |
+              #cloud-config
+              hostname: ssc600-vm
+              # Add any other cloud-init configurations here, e.g., SSH keys, user setup
+              # users:
+              #   - name: clouduser
+              #     ssh_authorized_keys:
+              #       - ssh-rsa AAAAB3NzaC...

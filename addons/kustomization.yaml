@@ -2,7 +2,6 @@
 resources:
   - ptp.yaml
   - sriov.yaml
-  - localstorageoperator.yaml
   - performance.yaml
   - virt.yaml
   - grafana.yaml
@@ -18,5 +17,11 @@ resources:
   - 70-ReduceMonitoringFootprint.yaml
   - 70-ReduceOLMFootprint.yaml
   - 70-TunedPerformancePatch.yaml
-  - localvolumeset.yaml
   - scale-monitoring.yaml
+  - local-volume-discovery.yaml
+  - localstorageoperator.yaml
+  - my-ssc600-vm.yaml
+  - odf-operator.yaml
+  - odf-storage.yaml
+  - vm-image-datavolume.yaml
+  - vm-import.yaml

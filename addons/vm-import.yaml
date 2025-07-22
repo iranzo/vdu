@@ -1,0 +1,126 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vm-workloads
+---
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  name: br-ex
+  namespace: vm-workloads
+  annotations:
+    k8s.v1.cni.cncf.io/resourceName: ovs-cni.network.kubevirt.io/br-ex
+spec:
+  config: '{"cniVersion": "0.3.1", "type": "ovs", "bridge": "br-ex"}'
+---
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataVolume
+metadata:
+  name: ssc600-disk
+  namespace: vm-workloads
+spec:
+  storage:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 40Gi
+    storageClassName: ocs-storagecluster-ceph-rbd-virtualization
+  source:
+    http:
+      url: http://alufis35.uv.es/~iranzo/www2/ssc600_disk.img
+---
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: ssc600-vm
+  namespace: vm-workloads
+  labels:
+    app: ssc600-vm
+spec:
+  #running: false -> deprecated
+  runStrategy: Always
+  template:
+    metadata:
+      labels:
+        kubevirt.io/vm: ssc600-vm
+    spec:
+      domain:
+        cpu:
+          cores: 2
+          sockets: 1
+          threads: 1
+        devices:
+          disks:
+            - name: rootdisk
+              disk:
+                bus: virtio
+            - name: cloudinitdisk
+              disk:
+                bus: virtio
+          interfaces:
+            - bridge: {}
+              macAddress: dd:ee:aa:dd:bb:ee
+              name: br-ex
+#            - name: default
+#              masquerade: {}
+        machine:
+          type: pc-q35-rhel9.2.0
+        resources:
+          requests:
+            memory: 4Gi
+      networks:
+        - multus:
+            networkName: br-ex
+          name: br-ex
+#        - name: default
+#          pod: {}
+      volumes:
+        - name: rootdisk
+          dataVolume:
+            name: ssc600-disk
+        - name: cloudinitdisk
+          cloudInitNoCloud:
+            userData: |
+              #cloud-config
+              user: root
+              password: redhat
+              chpasswd: { expire: False }
+              ssh_authorized_keys:
+                - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC8k6sAkPLWIUwov0YPLi3ex7WAw35MGZhXyC7Seyu9703wO436NBHOtRGFwl8gTbMR9k/WG0tPbNS42H06Zpi8vCB+ITftqBCWjlKOgOQKnvEiC73JhgounQPvjhj2r/JEvrPQ8QThHnBPLjFk5dGH9AORanEcNr9BBG/YXCgdcXAgZL9pQ+jhoy0JRnKhGpQLGzyMeuUYOfxcivXHKZFZzZ4fluSskx1Wm+Zw1Tzbhr/rTTvrlkQVmzxMlOjN/k02/CdEDjDG5G8Qb2QKsIqnZZy05snnfeN0B2u8uEhcfvW1IvKrRT/BXYlU3E7Rz7cboJlJ54eiKRlZXCQtXDYCfdJwHudaNtL5w31F4xOObdpCv3ANQb6Ravr0LG91liKMjaYCGNYkrP7S3v7D7gkpDyjNn7DYqgwCk2D/oU/NeuMZCB6PsBB2R2rXexq0EIgFw/bwabASQghCkV3JkOj5kIRvrQfFb3jZJDMEoELvAWLhGg08qvHg1leV3xm8+coobXiGqdmoGPCPATGb/4Evl1DR3mSrLYh88TAInCCDzivBSr+SLOl2BSpbwmJ0suIS3AIT04KeHJMpicOsOZE8SuDrngHTlCasZaoMF9ny6GiK3/jX7VJuTmYjtG7unZ5C7U7tT0jdMUcWOYezEhvLc1EmZtDSCYycxAC9s6oKdw==
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ssc600-vm-service
+  namespace: vm-workloads
+spec:
+  ports:
+    - name: ssh
+      port: 22
+      protocol: TCP
+      targetPort: 22
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 80
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: 443
+  selector:
+    kubevirt.io/vm: ssc600-vm
+  type: ClusterIP
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: ssc600-vm-route
+  namespace: vm-workloads
+spec:
+  to:
+    kind: Service
+    name: ssc600-vm-service
+  port:
+    targetPort: http

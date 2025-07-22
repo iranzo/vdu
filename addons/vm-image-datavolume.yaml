@@ -1,0 +1,24 @@
+---
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataVolume
+metadata:
+  name: ssc600-vm-disk
+  namespace: default # Or your desired namespace for VMs
+spec:
+  source:
+    http:
+      url: https://alufis35.uv.es/~iranzo/www2/ssc600_disk.img
+  pvc:
+    accessModes:
+    # ReadWriteMany is required for live migration of VMs.
+    # ocs-storagecluster-ceph-rbd supports RWX.
+      - ReadWriteMany
+    resources:
+      requests:
+        # Request sufficient storage for your VM disk image.
+        # Adjust this value based on the actual size of ssc600_disk.img.
+        # A common VM disk might be 20Gi, 40Gi, or more.
+        # If the image is smaller, you can request less, but ensure it's enough.
+        storage: 20Gi # Example: 20 GiB. Adjust as needed.
+    storageClassName: ocs-storagecluster-ceph-rbd # This is the StorageClass provided by ODF for block storage.
+    volumeMode: Block # VM disks typically use block volume mode.

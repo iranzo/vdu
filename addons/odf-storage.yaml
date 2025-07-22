@@ -1,0 +1,184 @@
+---
+# --- BEGIN CONCEPTUAL ODF-STORAGE.YAML ---
+
+# StorageSystem (top-level orchestrator for ODF deployment)
+# This looks correct from your previous file.
+apiVersion: odf.openshift.io/v1alpha1
+kind: StorageSystem
+metadata:
+  name: ocs-storagecluster-storagesystem
+  namespace: openshift-storage
+spec:
+  kind: storagecluster.ocs.openshift.io/v1
+  name: ocs-storagecluster
+  namespace: openshift-storage
+---
+
+# StorageCluster (CRITICAL CORRECTIONS applied here)
+# You MUST obtain the full StorageCluster definition from Red Hat's ODF manifests.
+apiVersion: ocs.openshift.io/v1
+kind: StorageCluster
+metadata:
+  name: ocs-storagecluster
+  namespace: openshift-storage
+spec:
+  # deploymentType: Compact # Can be explicitly set, or inferred by nodeSelector and replica count
+  monDataDirHostPath: /var/lib/rook # Default path for Ceph MON data on hosts (on OS disk or dedicated small partition)
+  manageNodes: false # Keep false unless you want ODF to manage node labels automatically
+
+  # Standard ODF component resource requests/limits (as in your original)
+  resources:
+    mds:
+      limits: {cpu: "1", memory: 8Gi}
+      requests: {cpu: "1", memory: 8Gi}
+    mgr:
+      limits: {cpu: "1", memory: 3Gi}
+      requests: {cpu: "1", memory: 3Gi}
+    mon:
+      limits: {cpu: "1", memory: 2Gi}
+      requests: {cpu: "1", memory: 2Gi}
+    noobaa-core:
+      limits: {cpu: "1", memory: 4Gi}
+      requests: {cpu: "1", memory: 4Gi}
+    noobaa-db:
+      limits: {cpu: "1", memory: 4Gi}
+      requests: {cpu: "1", memory: 4Gi}
+    rgw:
+      limits: {cpu: "1", memory: 4Gi}
+      requests: {cpu: "1", memory: 4Gi}
+
+  # Configuration for your dedicated storage devices (OSDs)
+  storageDeviceSets:
+    - name: ocs-deviceset # Name for this set of storage devices
+      count: 3 # Correct: One OSD pod per master/worker node (for 3-node compact)
+      replica: 3 # CRITICAL: Data replicated across all 3 OSDs/nodes for 3-node cluster resilience
+      resources:
+        limits: {cpu: "2", memory: 5Gi}
+        requests: {cpu: "2", memory: 5Gi}
+      placement:
+      # Use nodeSelector to explicitly target your master/worker nodes
+        nodeSelector:
+          node-role.kubernetes.io/master: "" # Targets all nodes labeled as master
+      portable: true # Set to true to allow ODF to auto-discover raw disks
+      dataPVCTemplate:
+        metadata: {}
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 90Gi # VERIFY: This is the size of EACH dedicated raw disk you have (or want to use)
+          storageClassName: # Empty string; ODF will manage PV creation directly from devices
+          volumeMode: Block # Use Block mode for OSD backing storage
+    # Use deviceSelector for more flexible device detection
+      deviceSelector:
+        minSize: 10Gi # Minimum size for devices to be considered
+        maxSize: 500Gi # Maximum size for devices to be considered
+      # deviceTypes: ["disk", "part"] # Optional: specify device types
+      # vendor: ["ATA", "SCSI"] # Optional: specify vendors
+      # models: [".*"] # Optional: specify models with regex
+      # rotational: true # Optional: specify if rotational disks are preferred
+
+
+      # Node topologies: Simplified for compact clusters
+      # Using hostname-based topology for 3-node clusters
+  nodeTopologies:
+    labels:
+      topology.kubernetes.io/zone:
+        - zone-0
+        - zone-1
+        - zone-2
+
+  placement:
+    # Default placements for other Ceph components (MDS, MGR, MON, NooBaa, RGW)
+    # Removed arbiter for compact cluster
+    mds: {}
+    mgr: {}
+    mon: {}
+    noobaa-core: {}
+    noobaa-db: {}
+    rgw: {}
+
+  # Managed resources: These are standard ODF components that the operator manages
+  managedResources:
+    cephBlockPools: {}
+    cephCluster: {}
+    cephConfig: {}
+    cephDashboard: {}
+    cephFilesystems: {}
+    cephObjectStoreUsers: {}
+    cephObjectStores: {}
+    cephToolbox: {}
+    # Include other managed resources if part of official manifests:
+    # cephRBDMirror: {}
+    # cephNonResilientPools: {}
+  encryption:
+    kms: {}
+    keyRotation:
+      schedule: '@weekly'
+  externalStorage: {}
+---
+
+# Custom StorageClass for Virtualization (CRITICAL CORRECTION applied here)
+# This looks correct from your previous file, but ensuring the pool matches the custom pool.
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ocs-storagecluster-ceph-rbd-virtualization
+  annotations:
+    storageclass.kubernetes.io/is-default-class: false # Explicitly not default
+    description: Provides RWO and RWX Filesystem volumes, and RWO and RWX Block volumes for virtualization workloads
+provisioner: openshift-storage.rbd.csi.ceph.com
+parameters:
+  clusterID: openshift-storage
+  pool: ocs-storagecluster-cephblockpool-virtualization # CRITICAL: Point to your custom CephBlockPool name
+  csi.storage.k8s.io/controller-expand-secret-name: rook-csi-rbd-provisioner
+  csi.storage.k8s.io/controller-expand-secret-namespace: openshift-storage
+  csi.storage.k8s.io/fstype: ext4 # File system type inside the block device
+  csi.storage.k8s.io/node-stage-secret-name: rook-csi-rbd-node
+  csi.storage.k8s.io/node-stage-secret-namespace: openshift-storage
+  csi.storage.k8s.io/provisioner-secret-name: rook-csi-rbd-provisioner
+  csi.storage.k8s.io/provisioner-secret-namespace: openshift-storage
+  imageFeatures: layering
+  imageFormat: "2"
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+volumeBindingMode: Immediate # Or WaitForFirstConsumer if preferred for VM scheduling
+---
+
+# Custom CephBlockPool (CRITICAL CORRECTION applied here)
+# This defines the actual Ceph pool that your custom StorageClass will use.
+apiVersion: ceph.rook.io/v1
+kind: CephBlockPool
+metadata:
+  name: ocs-storagecluster-cephblockpool-virtualization # CRITICAL: Name of your custom pool, referenced by StorageClass
+  namespace: openshift-storage
+spec:
+  failureDomain: host # For a compact cluster, host-level failure domain is typical
+  replicated:
+    size: 3 # CRITICAL: Replicate data 3 times for 3-node cluster resilience
+    requireSafeReplicaSize: false # Allows operation with fewer replicas during maintenance
+  parameters:
+    compression_mode: none # Or 'aggressive', 'lz4', etc.
+---
+
+# ODF Console ConfigMap
+# This helps integrate ODF with the OpenShift console.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: odf-console-config
+  namespace: openshift-storage
+data:
+  console-config.yaml: |
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: odf-console-config
+      namespace: openshift-storage
+    data:
+      STORAGE_CLUSTER_NAME: ocs-storagecluster
+      MCG_RESOURCE: noobaa
+      RGW_RESOURCE: cephobjectstore
+
+# --- END CONCEPTUAL ODF-STORAGE.YAML ---

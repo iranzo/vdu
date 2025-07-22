@@ -30,18 +30,29 @@ kind: HyperConverged
 metadata:
   name: kubevirt-hyperconverged
   namespace: openshift-cnv
+  annotations:
+    # This allows to connect VMs to br-ex bridge on nodes (required if no extra-networks for VMs)
+    deployOVS: "true"
 spec:
   infra:
     nodePlacement:
       nodeSelector:
         node-role.kubernetes.io/master: ""
+      tolerations:
+        - effect: NoSchedule
+          key: "node-role.kubernetes.io/master"
+          operator: Exists
   workloads:
     nodePlacement:
       nodeSelector:
         node-role.kubernetes.io/master: ""
-  featureGates:
-    enableCommonBootImageImport: true
-    deployVmConsoleProxy: true
-  virtualMachineOptions:
-    disableFreePageReporting: false
-    disableSerialConsoleLog: false
+      tolerations:
+        - effect: NoSchedule
+          key: "node-role.kubernetes.io/master"
+          operator: Exists
+#  featureGates:
+#    enableCommonBootImageImport: true
+#    deployVmConsoleProxy: true
+#  virtualMachineOptions:
+#    disableFreePageReporting: false
+#    disableSerialConsoleLog: false

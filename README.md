@@ -131,3 +131,9 @@ If we want to update our cluster (via `oc adm upgrade`) we might need to acknowl
 ```sh
 oc -n openshift-config patch cm admin-acks --patch '{"data":{"ack-4.18-kube-1.32-api-removals-in-4.19":"true"}}' --type=merge
 ```
+
+oc label node hub-ctlplane-0.karmalabs.corp cluster.ocs.openshift.io/openshift-storage=""
+oc label node hub-ctlplane-1.karmalabs.corp cluster.ocs.openshift.io/openshift-storage=""
+oc label node hub-ctlplane-2.karmalabs.corp cluster.ocs.openshift.io/openshift-storage=""
+
+oc patch storageclass ocs-storagecluster-ceph-rbd -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}' │································································································

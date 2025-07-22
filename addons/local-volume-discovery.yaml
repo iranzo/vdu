@@ -1,0 +1,55 @@
+---
+apiVersion: local.storage.openshift.io/v1alpha1
+kind: LocalVolumeDiscovery
+metadata:
+  name: auto-discover-devices
+  namespace: openshift-local-storage
+spec:
+  # This section specifies which nodes the discovery should run on.
+  # Leaving it empty or using a broad selector like this will target all worker nodes.
+#  nodeSelector:
+#    node-role.kubernetes.io/worker: "" # Target all nodes with the 'worker' role
+  nodeSelector:
+    nodeSelectorTerms:
+      - matchExpressions:
+          - key: cluster.ocs.openshift.io/openshift-storage
+            operator: In
+            values:
+              - ""
+  # This configures the discovery process.
+  # It will create LocalVolume CRs for discovered devices.
+  # The 'local-block' StorageClass will be created.
+  # The 'local-filesystem' StorageClass will also be created, though ODF prefers block.
+  tolerations:
+    - key: "node.kubernetes.io/unreachable"
+      operator: "Exists"
+      effect: "NoExecute"
+      tolerationSeconds: 600
+    - key: "node.kubernetes.io/not-ready"
+      operator: "Exists"
+      effect: "NoExecute"
+      tolerationSeconds: 600
+---
+apiVersion: local.storage.openshift.io/v1alpha1
+kind: LocalVolumeSet
+metadata:
+  name: local-block
+  namespace: openshift-local-storage
+spec:
+  nodeSelector:
+    nodeSelectorTerms:
+      - matchExpressions:
+          - key: cluster.ocs.openshift.io/openshift-storage
+            operator: In
+            values:
+              - ""
+  storageClassName: localblock
+  volumeMode: Block
+  fstype: ""
+  maxDeviceCount: 1
+  deviceInclusionSpec:
+    deviceTypes:
+      - disk
+    deviceMechanicalProperties:
+      - NonRotational
+      - Rotational

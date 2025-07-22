@@ -1,0 +1,94 @@
+---
+apiVersion: ocs.openshift.io/v1
+kind: StorageCluster
+metadata:
+  name: ocs-storagecluster
+  namespace: openshift-storage
+spec:
+  # This configures ODF in internal (hyperconverged) mode,
+  # meaning storage components run on your OpenShift nodes.
+  manageNodes: false # Set to false for compact/hyperconverged, true for dedicated storage nodes
+  monDataDirHostPath: /var/lib/rook # Path on the host for Ceph monitor data
+  # This section defines the storage devices that ODF will use.
+  # We are configuring a single device set to use all available nodes
+  # and automatically discover suitable devices.
+  resources:
+    mgr:
+      requests:
+        cpu: "1m"
+        memory: 1Mi
+    mds:
+      requests:
+        cpu: "1m"
+        memory: 1Mi
+    mon:
+      requests:
+        cpu: "1m"
+        memory: 1Mi
+    osd:
+      requests:
+        cpu: "1m"
+        memory: 1Mi
+    rgw:
+      requests:
+        cpu: "1m"
+        memory: 1Mi
+    noobaa-core:
+      requests:
+        cpu: "1m"
+        memory: 1Mi
+    noobaa-db:
+      requests:
+        cpu: "1m"
+        memory: 1Mi
+    noobaa-db-vol:
+      requests:
+        storage: 50Gi
+    noobaa-endpoint:
+      requests:
+        cpu: "1m"
+        memory: 1Mi
+  storageDeviceSets:
+    - name: ocs-deviceset
+      count: 1 # Number of device sets (typically 1 for hyperconverged)
+      replica: 3
+      # Number of data replicas across failure domains (nodes).
+      # This means for every 100GB raw, you get ~33GB usable.
+      # With 3x replication, your 100GB raw per node (e.g., 3 nodes * 100GB = 300GB raw)
+      # will result in approximately 100GB of usable storage.
+      # This is EXTREMELY LIMITED for any real workload.
+      portable: true # Allows OSDs to be moved if nodes are drained. Recommended.
+    # This template defines the PersistentVolumeClaims (PVCs) that will back the OSDs.
+      dataPVCTemplate:
+        spec:
+        # IMPORTANT FIX: Specify 'local-block' as the StorageClass for OSDs
+        # This assumes the Local Storage Operator is installed and providing 'local-block'.
+          storageClassName: localblock
+          accessModes:
+            - ReadWriteOnce # OSDs require ReadWriteOnce access mode.
+          volumeMode: Block # OSDs typically use block storage.
+          resources:
+            requests:
+            # IMPORTANT: This should be slightly less than your actual 100GB disk
+            # to account for filesystem overhead and ensure it fits.
+            # Adjust if your disk is exactly 100GB (100GiB is ~107GB).
+            # For a 100GB disk, 95Gi is a safer bet.
+            #storage: 195Gi
+              storage: 1
+              # Request 95 GiB of storage for each OSD.
+              # WARNING: This is a very small amount for a production ODF cluster.
+              # Red Hat generally recommends 500GB+ per OSD.
+    # This section tells ODF how to find the disks.
+    # Setting useAllNodes: true means ODF will look on all nodes.
+    # Setting useAllDevices: true means ODF will look for all unpartitioned, unmounted disks.
+    # If you have multiple unpartitioned disks and only want to use the 100GB one,
+    # you might need to specify a deviceFilter, e.g., deviceFilter: "sdb"
+    # or a more specific path like "/dev/disk/by-id/your-disk-id"
+      placement: {} # Default placement, ODF will distribute across nodes.
+    # deviceFilter: "" # Leave empty to use all available devices.
+    # If you need to target a specific disk, e.g., /dev/sdb, use "sdb"
+    # Run `lsblk` on your nodes to identify the correct device name.
+    # This tells ODF to use all available nodes for storage.
+      useAllNodes: true
+    # This tells ODF to use all available, unpartitioned, and unmounted devices.
+      useAllDevices: true
