@@ -13,6 +13,7 @@ metadata:
     k8s.v1.cni.cncf.io/resourceName: ovs-cni.network.kubevirt.io/br-ex
 spec:
   config: '{"cniVersion": "0.3.1", "type": "ovs", "bridge": "br-ex"}'
+
 ---
 apiVersion: kubevirt.io/v1
 kind: VirtualMachine
@@ -32,38 +33,38 @@ metadata:
       ]
   generation: 1
   labels:
-    app: ssc600-vm
+    app: fedora-vm
     kubevirt.io/dynamic-credentials-support: "true"
-    vm.kubevirt.io/template: ssc600-vm
+    vm.kubevirt.io/template: fedora-vm
     vm.kubevirt.io/template.namespace: openshift
     vm.kubevirt.io/template.revision: "1"
-  name: ssc600-vm
+  name: fedora-vm
   namespace: vm-workloads
 spec:
   dataVolumeTemplates:
     - metadata:
         creationTimestamp:
-        name: ssc600-vm
+        name: fedora-vm
       spec:
         preallocation: false
         source:
           http:
-            url: http://alufis35.uv.es/~iranzo/www2/ssc600_disk.img
+            url: http://packages.oit.ncsu.edu/fedora/linux/releases/40/Cloud/x86_64/images/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2
         storage:
           resources:
             requests:
-              storage: 40Gi
+              storage: 30Gi
           storageClassName: ocs-storagecluster-ceph-rbd-virtualization
   runStrategy: Always
   template:
     metadata:
       annotations:
         vm.kubevirt.io/flavor: small
-        vm.kubevirt.io/os: ssc600-vm
+        vm.kubevirt.io/os: fedora
         vm.kubevirt.io/workload: server
       creationTimestamp:
       labels:
-        kubevirt.io/domain: ssc600-vm
+        kubevirt.io/domain: fedora-vm
         kubevirt.io/size: small
         network.kubevirt.io/headlessService: headless
     spec:
@@ -71,7 +72,7 @@ spec:
       domain:
         cpu:
           cores: 1
-          sockets: 4
+          sockets: 1
           threads: 1
         devices:
           disks:
@@ -84,13 +85,13 @@ spec:
                 bus: virtio
               name: cloudinitdisk
           interfaces:
-            - macAddress: 02:fe:41:00:00:02
+            - macAddress: 02:fe:31:00:00:02
               bridge: {}
               name: br-ex
-          #          - macAddress: 02:fe:31:00:00:01
-          #            masquerade: {}
-          #            model: virtio
-          #            name: default
+#          - macAddress: 02:fe:31:00:00:01
+#            masquerade: {}
+#            model: virtio
+#            name: default
           rng: {}
         features:
           acpi: {}
@@ -102,12 +103,12 @@ spec:
         machine:
           type: pc-q35-rhel9.4.0
         memory:
-          guest: 8Gi
+          guest: 2Gi
         resources: {}
       evictionStrategy: LiveMigrate
       networks:
-      #      - name: default
-      #        pod: {}
+#      - name: default
+#        pod: {}
         - name: br-ex
           multus:
             networkName: br-ex
@@ -122,5 +123,5 @@ spec:
                 expire: false
           name: cloudinitdisk
         - dataVolume:
-            name: ssc600-vm
+            name: fedora-vm
           name: rootdisk
