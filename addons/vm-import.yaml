@@ -73,6 +73,8 @@ spec:
           cores: 1
           sockets: 4
           threads: 1
+          dedicatedCpuPlacement: true
+          isolateEmulatorThread: true
         devices:
           disks:
             - bootOrder: 1

@@ -20,8 +20,7 @@ resources:
   - scale-monitoring.yaml
   - local-volume-discovery.yaml
   - localstorageoperator.yaml
-  - my-ssc600-vm.yaml
   - odf-operator.yaml
-  - odf-storage.yaml
+  - odf-storagecluster.yaml
   - vm-image-datavolume.yaml
   - vm-import.yaml

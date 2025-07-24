@@ -136,4 +136,4 @@ oc label node hub-ctlplane-0.karmalabs.corp cluster.ocs.openshift.io/openshift-s
 oc label node hub-ctlplane-1.karmalabs.corp cluster.ocs.openshift.io/openshift-storage=""
 oc label node hub-ctlplane-2.karmalabs.corp cluster.ocs.openshift.io/openshift-storage=""
 
-oc patch storageclass ocs-storagecluster-ceph-rbd -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}' │································································································
+oc patch storageclass ocs-storagecluster-ceph-rbd -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
