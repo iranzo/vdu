@@ -1,139 +1,175 @@
-# vDU profile testing
+# vDU (Virtual Distributed Unit) Profile Testing
 
-vDU makes use of a SNO OpenShift deployment.
-
-In this case, we want to define an hyperconverged cluster with 3 master nodes and no workers.
+This repository provides a complete deployment and configuration setup for a virtualized Distributed Unit (vDU) profile testing environment using OpenShift Container Platform. The setup creates a hyperconverged 3-node master cluster (no workers) optimized for telco/edge computing workloads with real-time performance, SR-IOV networking, and virtualization capabilities.
 
 ## Requirements
 
 - KCLI client
 - Working pull secret
 
-## Setting up the infrastructure
+## Deployment Overview
 
-Create a `kcli_plan.yaml`:
+This deployment consists of three main phases:
 
-```yaml
-parameters:
-  cluster: cluster
-  tag: '4.18'
-  version: 'stable'
-  domain: karmalabs.corp
-  number: 0
-  network: default
-  cidr: 192.168.122.0/24
+### Phase 1: Infrastructure Setup (kcli_plan.yml)
 
-{{ network }}:
-  type: network
-  cidr: {{ cidr }}
-  disks:
-   - size: 100
-   - size: 100
+- **3-node OpenShift cluster** with masters acting as workers
+- **12 CPUs and ~40GB RAM** per node for optimal performance
+- **100GB storage** per node plus additional 100GB disk
+- **OpenShift 4.19** (stable channel)
 
+### Phase 2: vDU Profile Configuration (addons/)
 
-{% set num = 0 %}
+The addons are applied in a specific order to configure the telco/edge computing stack:
 
-{% set api_ip = cidr|network_ip(200 + num ) %}
+1. **Container & Kubelet Configuration** - Base container optimizations
+2. **PTP (Precision Time Protocol)** - Network time synchronization
+3. **SR-IOV** - Single Root I/O Virtualization for network performance
+4. **Accelerated Container Startup** - Faster container initialization
+5. **Performance Profile** - Real-time kernel and CPU isolation
+6. **KDump** - Kernel crash dump configuration
+7. **Node Remediation & Health Check** - Automated node management
+8. **Local Storage Operator & Discovery** - Storage management foundation
+9. **ODF (OpenShift Data Foundation)** - Distributed storage cluster
+10. **OpenShift Virtualization** - VM workload support
+11. **Grafana & Monitoring** - Observability stack
+12. **CRI-O Optimizations** - Container runtime tuning
+13. **Chrony** - Network time synchronization
+14. **Resource Footprint Reduction** - Optimize for edge deployment
+15. **VM Project & Templates** - Virtual machine management
+    - ABB SSC600 appliance template
+    - Fedora VM template
+    - VM instances from templates
 
-{% set cluster = 'hub' %}
+### Phase 3: Network Configuration
 
-hub:
-  type: cluster
-  kubetype: openshift
-  domain: {{ domain }}
-  ctlplanes: 3
-  api_ip: {{ api_ip }}
-  numcpus: 16
-  memory: 32768
+- **DHCP Network** - Bridge network with DHCP IP assignment
+- **L2 Private Network** - Private layer-2 network for VM isolation
 
-api-hub:
- type: dns
- net: {{ network }}
- ip: {{ api_ip }}
- alias:
- - api.{{ cluster }}.{{ domain }}
- - api-int.{{ cluster }}.{{ domain }}
+## Step-by-Step Deployment
 
-{% if num == 0 %}
-apps-hub:
- type: dns
- net: {{ network }}
- ip: {{ api_ip }}
- alias:
- - console-openshift-console.apps.{{ cluster }}.{{ domain }}
- - oauth-openshift.apps.{{ cluster }}.{{ domain }}
- - prometheus-k8s-openshift-monitoring.apps.{{ cluster }}.{{ domain }}
- - canary-openshift-ingress-canary.apps.{{ cluster }}.{{ domain }}
- - multicloud-console.apps.{{ cluster }}.{{ domain }}
-{% endif %}
+### 1. Prepare the Environment
 
+Store your OpenShift pull secret in `openshift_pull.json` alongside the `kcli_plan.yml` file.
 
-{% for num in range(1, number) %}
-{% set api_ip = cidr|network_ip(200 + num ) %}
-{% set cluster = "cluster" %}
+### 2. Deploy the OpenShift Cluster
 
-cluster{{ num }}:
-  type: cluster
-  kubetype: openshift
-  domain: {{ domain }}
-  ctlplanes: 1
-  api_ip: {{ api_ip }}
-  numcpus: 16
-  memory: 18384
-
-api-cluster{{ num}}:
- type: dns
- net: {{ network }}
- ip: {{ api_ip }}
- alias:
- - api.{{ cluster }}{{ num }}.{{ domain }}
- - api-int.{{ cluster }}{{ num }}.{{ domain }}
-
-{% endfor %}
-
+```bash
+kcli create plan
 ```
 
-Store your pull secret in a file named `openshift_pull.json` alongside above plan.
+Monitor the installation progress:
 
-## Create the cluster
-
-Execute `kcli create plan`.
-
-For monitoring the creation you can use a commandline like (as well as the `kcli` command output being printed on screen):
-
-```sh
-KUBECONFIG=/root/.kcli/clusters/hub/auth/kubeconfig
-watch -d 'oc get clusterversion; oc get nodes -o wide; oc get mcp;oc get co'
+```bash
+export KUBECONFIG=/root/.kcli/clusters/hub/auth/kubeconfig
+watch -d 'oc get clusterversion; oc get nodes -o wide; oc get mcp; oc get co'
 ```
 
-## Configure the cluster
+### 3. Apply vDU Configuration
 
-According to the [documentation](https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html-single/scalability_and_performance/index#telco-ran-du-reference-design-components_telco-ran-du) we've several components required for our system:
+The vDU profile configuration is applied using Kustomize, which ensures all components are deployed in the correct order:
 
-![DU Profile schema](du.png)
+```bash
+oc apply -k addons/
+```
 
-Inside the `manifests` folder there's a `kustomization.yaml` so that we can use `oc apply -k .` to get all manifests applied to our cluster.
+**Important Notes:**
 
-Note that some of the changes, are configuring the requirement for `kernel-rt` so the `MachineConfigurationPools` will be updated and once the update is finished, it will be applied to the nodes that will reboot to apply the configuration changes.
+- The performance profile configures **real-time kernel** (`kernel-rt`), which triggers node reboots
+- **Machine Configuration Pools** (MCPs) will update sequentially
+- Complete deployment takes 30-45 minutes due to node reboots and operator installations
 
-At the end of the process, `oc get nodes -o wide` will list as kernel version the one ending in `+rt`like:
+### 4. Verify Real-Time Kernel Installation
 
-```sh
-$ oc get nodes -o wide
+After all MCPs show `UPDATED=True`, verify the real-time kernel is active:
+
+```bash
+oc get nodes -o wide
+```
+
+Expected output showing `+rt` kernel:
+
+```text
 NAME                            STATUS   ROLES                         AGE     VERSION   INTERNAL-IP       EXTERNAL-IP   OS-IMAGE                                                KERNEL-VERSION                    CONTAINER-RUNTIME
 hub-ctlplane-0.karmalabs.corp   Ready    control-plane,master,worker   5d22h   v1.31.8   192.168.122.8     <none>        Red Hat Enterprise Linux CoreOS 418.94.202505062142-0   5.14.0-427.68.1.el9_4.x86_64+rt   cri-o://1.31.8-3.rhaos4.18.gitf0f6e96.el9
 hub-ctlplane-1.karmalabs.corp   Ready    control-plane,master,worker   5d22h   v1.31.8   192.168.122.228   <none>        Red Hat Enterprise Linux CoreOS 418.94.202505062142-0   5.14.0-427.68.1.el9_4.x86_64+rt   cri-o://1.31.8-3.rhaos4.18.gitf0f6e96.el9
 hub-ctlplane-2.karmalabs.corp   Ready    control-plane,master,worker   5d22h   v1.31.8   192.168.122.97    <none>        Red Hat Enterprise Linux CoreOS 418.94.202505062142-0   5.14.0-427.68.1.el9_4.x86_64+rt   cri-o://1.31.8-3.rhaos4.18.gitf0f6e96.el9
 ```
 
-If we want to update our cluster (via `oc adm upgrade`) we might need to acknowledge the changes to API via:
+## Post-Deployment Configuration
 
-```sh
+### Cluster Upgrades
+
+If upgrading the cluster (via `oc adm upgrade`), acknowledge API changes:
+
+```bash
 oc -n openshift-config patch cm admin-acks --patch '{"data":{"ack-4.18-kube-1.32-api-removals-in-4.19":"true"}}' --type=merge
 ```
 
+### Storage Configuration (ODF/OCS)
+
+Label nodes for OpenShift Data Foundation storage:
+
+```bash
 oc label node hub-ctlplane-0.karmalabs.corp cluster.ocs.openshift.io/openshift-storage=""
 oc label node hub-ctlplane-1.karmalabs.corp cluster.ocs.openshift.io/openshift-storage=""
 oc label node hub-ctlplane-2.karmalabs.corp cluster.ocs.openshift.io/openshift-storage=""
+```
 
+Set Ceph RBD as the default storage class:
+
+```bash
 oc patch storageclass ocs-storagecluster-ceph-rbd -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+```
+
+## Virtual Machine Management
+
+### Available VM Templates
+
+The deployment includes pre-configured VM templates:
+
+- **ABB SSC600 Appliance** - Industrial automation appliance template
+- **Fedora VM** - General-purpose Linux VM template
+
+### Managing VM Network Interfaces
+
+Add additional network interfaces to VMs:
+
+```bash
+virtctl addinterface <vm-name> --network-name=dhcp-network --name=eth1
+```
+
+### Network Configurations
+
+- **dhcp-network**: Bridge network with DHCP IP assignment via `br-ex`
+- **vm-private-l2-net**: Private L2 network with Whereabouts IPAM (192.168.2.0/24)
+
+## Architecture Reference
+
+According to the [Red Hat telco RAN DU reference design documentation](https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html-single/scalability_and_performance/index#telco-ran-du-reference-design-components_telco-ran-du), this deployment implements the complete vDU profile:
+
+![DU Profile schema](du.png)
+
+## Troubleshooting
+
+### Check Deployment Status
+
+```bash
+# Monitor all operators
+oc get co
+
+# Check Machine Configuration Pools
+oc get mcp
+
+# Verify performance profile
+oc get performanceprofile
+
+# Check virtualization installation
+oc get hyperconverged -n openshift-cnv
+```
+
+### Common Issues
+
+- **Node reboots**: Expected during performance profile application
+- **Storage not ready**: Ensure all nodes are labeled for OCS
+- **VM creation fails**: Verify storage class and network configurations are applied

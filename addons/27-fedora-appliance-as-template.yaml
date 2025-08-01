@@ -1,0 +1,22 @@
+---
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataVolume
+metadata:
+  name: fedora-vm-disk
+  namespace: vm-workloads # Or your desired namespace for VMs
+spec:
+  source:
+    http:
+      url: http://packages.oit.ncsu.edu/fedora/linux/releases/40/Cloud/x86_64/images/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2
+  pvc:
+    accessModes:
+    # ReadWriteMany is required for live migration of VMs.
+    # ocs-storagecluster-ceph-rbd supports RWX.
+      - ReadWriteMany
+    resources:
+      requests:
+        # Request sufficient storage for your VM disk image.
+        # Adjust this value based on the actual size of Fedora cloud image.
+        storage: 30Gi # Fedora cloud image size
+    storageClassName: ocs-storagecluster-ceph-rbd-virtualization # This is the StorageClass provided by ODF for block storage.
+    volumeMode: Block # VM disks typically use block volume mode.

@@ -1,26 +1,31 @@
 ---
 resources:
-  - ptp.yaml
-  - sriov.yaml
-  - performance.yaml
-  - virt.yaml
-  - grafana.yaml
-  - noderemediation.yaml
-  - nodehealthcheck.yaml
   - 01-container-mount-ns-and-kubelet-conf-master.yaml
+  - 02-ptp.yaml
+  - 03-sriov.yaml
   - 04-accelerated-container-startup-master.yaml
+  - 05-performance.yaml
   - 06-kdump-master.yaml
-  - 51-crio-disable-wipe-master.yaml
-  - 51-crio-enable-crun-master.yaml
-  - 52-chrony-master.yaml
-  - 52-chrony-sync-time-once-master.yaml
-  - 70-ReduceMonitoringFootprint.yaml
-  - 70-ReduceOLMFootprint.yaml
-  - 70-TunedPerformancePatch.yaml
-  - scale-monitoring.yaml
-  - local-volume-discovery.yaml
-  - localstorageoperator.yaml
-  - odf-operator.yaml
-  - odf-storagecluster.yaml
-  - vm-image-datavolume.yaml
-  - vm-import.yaml
+  - 07-noderemediation.yaml
+  - 08-nodehealthcheck.yaml
+  - 09-localstorageoperator.yaml
+  - 10-local-volume-discovery.yaml
+  - 11-odf-operator.yaml
+  - 12-odf-storagecluster.yaml
+  - 13-virt.yaml
+  - 14-grafana.yaml
+  - 15-scale-monitoring.yaml
+  - 16-crio-disable-wipe-master.yaml
+  - 17-crio-enable-crun-master.yaml
+  - 18-chrony-master.yaml
+  - 19-chrony-sync-time-once-master.yaml
+  - 20-ReduceMonitoringFootprint.yaml
+  - 21-ReduceOLMFootprint.yaml
+  - 22-TunedPerformancePatch.yaml
+  - 23-vm-project.yaml
+  - 24-abb-ssc600-appliance-as-template.yaml
+  - 25-vm-from-abb-template.yaml
+  - 27-fedora-appliance-as-template.yaml
+  - 28-fedora-vm-from-template.yaml
+  - dhcp-network.yaml
+  - l2net.yaml

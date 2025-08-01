@@ -27,8 +27,8 @@ hub:
   domain: {{ domain }}
   ctlplanes: 3
   api_ip: {{ api_ip }}
-  numcpus: 8
-  memory: 28672
+  numcpus: 12
+  memory: 40975
   disk_size: 100
   extra_disks:
   - 100
@@ -68,8 +68,8 @@ cluster{{ num }}:
   domain: {{ domain }}
   ctlplanes: 1
   api_ip: {{ api_ip }}
-  numcpus: 8
-  memory: 28672
+  numcpus: 12
+  memory: 40975
 
 api-cluster{{ num}}:
  type: dns
