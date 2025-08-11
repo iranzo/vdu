@@ -86,6 +86,8 @@ spec:
         firmware:
           bootloader:
             efi: {}
+            secureBoot: false
+
         machine:
           type: pc-q35-rhel9.4.0
         memory:
