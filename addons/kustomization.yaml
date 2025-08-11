@@ -24,8 +24,6 @@ resources:
   - 22-TunedPerformancePatch.yaml
   - 23-vm-project.yaml
   - 24-abb-ssc600-appliance-as-template.yaml
-  - 25-vm-from-abb-template.yaml
   - 27-fedora-appliance-as-template.yaml
-  - 28-fedora-vm-from-template.yaml
   - dhcp-network.yaml
   - l2net.yaml
