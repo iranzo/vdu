@@ -46,6 +46,7 @@ spec:
         vm.kubevirt.io/flavor: small
         vm.kubevirt.io/os: fedora
         vm.kubevirt.io/workload: server
+        k8s.v1.cni.cncf.io/networks: '[{"name":"vm-private-l2-net","namespace":"vm-workloads","ips":["192.168.2.11/24"]}]'
       creationTimestamp:
       labels:
         kubevirt.io/domain: fedora-vm
