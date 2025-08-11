@@ -51,10 +51,10 @@ repos:
       - id: check-byte-order-marker
       - id: check-docstring-first
     repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
   - repo: https://github.com/astral-sh/ruff-pre-commit
   # Ruff version.
-    rev: v0.12.5
+    rev: v0.12.8
     hooks:
   # Run the linter.
       - id: ruff
@@ -112,7 +112,7 @@ repos:
 
 # Shell script analysis
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.10.0.1
+    rev: v0.11.0.1
     hooks:
       - id: shellcheck
 
@@ -124,7 +124,7 @@ repos:
 
 # File size and naming conventions
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-toml
       - id: name-tests-test
