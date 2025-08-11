@@ -1,0 +1,119 @@
+---
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  annotations:
+    kubevirt.io/latest-observed-api-version: v1
+    kubevirt.io/storage-observed-api-version: v1
+    vm.kubevirt.io/validations: |
+      [
+        {
+          "name": "minimal-required-memory",
+          "path": "jsonpath::.spec.domain.memory.guest",
+          "rule": "integer",
+          "message": "This VM requires more memory.",
+          "min": 1000
+        }
+      ]
+  generation: 1
+  labels:
+    app: fedora2-vm
+    kubevirt.io/dynamic-credentials-support: "true"
+    vm.kubevirt.io/template: fedora-vm
+    vm.kubevirt.io/template.namespace: openshift
+    vm.kubevirt.io/template.revision: "1"
+  name: fedora2-vm
+  namespace: vm-workloads
+spec:
+  # dataVolumeTemplates:
+  #   - metadata:
+  #       creationTimestamp:
+  #       name: fedora-vm
+  #     spec:
+  #       preallocation: false
+  #       source:
+  #         http:
+  #           url: http://packages.oit.ncsu.edu/fedora/linux/releases/40/Cloud/x86_64/images/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2
+  #       storage:
+  #         resources:
+  #           requests:
+  #             storage: 30Gi
+  #         storageClassName: ocs-storagecluster-ceph-rbd-virtualization
+  runStrategy: Always
+  template:
+    metadata:
+      annotations:
+        vm.kubevirt.io/flavor: small
+        vm.kubevirt.io/os: fedora
+        vm.kubevirt.io/workload: server
+        k8s.v1.cni.cncf.io/networks: '[{"name":"vm-private-l2-net","namespace":"vm-workloads","ips":["192.168.2.12/24"]}]'
+      creationTimestamp:
+      labels:
+        kubevirt.io/domain: fedora-vm
+        kubevirt.io/size: small
+        network.kubevirt.io/headlessService: headless
+    spec:
+      architecture: amd64
+      domain:
+        cpu:
+          cores: 1
+          sockets: 1
+          threads: 1
+        devices:
+          disks:
+            - bootOrder: 1
+              disk:
+                bus: virtio
+              name: rootdisk
+            - name: cloudinitdisk
+              disk:
+                bus: virtio
+          interfaces:
+            - name: private-l2-interface # <--- UNIQUE NAME for this interface within the VM (MUST MATCH the one used for ssc600-vm)
+              bridge: {}
+            - macAddress: 02:fe:31:00:00:03
+              bridge: {}
+              name: br-ex
+
+          #          - macAddress: 02:fe:31:00:00:01
+          #            masquerade: {}
+          #            model: virtio
+          #            name: default
+          rng: {}
+        features:
+          acpi: {}
+          smm:
+            enabled: true
+        firmware:
+          bootloader:
+            efi: {}
+        machine:
+          type: pc-q35-rhel9.4.0
+        memory:
+          guest: 1Gi
+        resources: {}
+      evictionStrategy: LiveMigrate
+      networks:
+      #      - name: default
+      #        pod: {}
+        - name: private-l2-interface # <--- This name MUST match the new interface name above
+          multus:
+            networkName: vm-workloads/vm-private-l2-net # <---
+        - name: br-ex
+          multus:
+            networkName: br-ex
+
+      terminationGracePeriodSeconds: 180
+      volumes:
+        - dataVolume:
+            name: fedora-vm-disk
+          name: rootdisk
+        - cloudInitNoCloud:
+            userData: |
+              #cloud-config
+              users:
+              - name: fedora
+                sudo: ALL=(ALL) NOPASSWD:ALL
+                ssh_authorized_keys:
+                  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC8k6sAkPLWIUwov0YPLi3ex7WAw35MGZhXyC7Seyu9703wO436NBHOtRGFwl8gTbMR9k/WG0tPbNS42H06Zpi8vCB+ITftqBCWjlKOgOQKnvEiC73JhgounQPvjhj2r/JEvrPQ8QThHnBPLjFk5dGH9AORanEcNr9BBG/YXCgdcXAgZL9pQ+jhoy0JRnKhGpQLGzyMeuUYOfxcivXHKZFZzZ4fluSskx1Wm+Zw1Tzbhr/rTTvrlkQVmzxMlOjN/k02/CdEDjDG5G8Qb2QKsIqnZZy05snnfeN0B2u8uEhcfvW1IvKrRT/BXYlU3E7Rz7cboJlJ54eiKRlZXCQtXDYCfdJwHudaNtL5w31F4xOObdpCv3ANQb6Ravr0LG91liKMjaYCGNYkrP7S3v7D7gkpDyjNn7DYqgwCk2D/oU/NeuMZCB6PsBB2R2rXexq0EIgFw/bwabASQghCkV3JkOj5kIRvrQfFb3jZJDMEoELvAWLhGg08qvHg1leV3xm8+coobXiGqdmoGPCPATGb/4Evl1DR3mSrLYh88TAInCCDzivBSr+SLOl2BSpbwmJ0suIS3AIT04KeHJMpicOsOZE8SuDrngHTlCasZaoMF9ny6GiK3/jX7VJuTmYjtG7unZ5C7U7tT0jdMUcWOYezEhvLc1EmZtDSCYycxAC9s6oKdw==
+          name: cloudinitdisk
