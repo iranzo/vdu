@@ -85,8 +85,8 @@ spec:
             enabled: true
         firmware:
           bootloader:
-            efi: {}
-            secureBoot: false
+            efi:
+              secureBoot: false
 
         machine:
           type: pc-q35-rhel9.4.0
