@@ -112,9 +112,7 @@ oc -n openshift-config patch cm admin-acks --patch '{"data":{"ack-4.18-kube-1.32
 Label nodes for OpenShift Data Foundation storage:
 
 ```bash
-oc label node hub-ctlplane-0.karmalabs.corp cluster.ocs.openshift.io/openshift-storage=""
-oc label node hub-ctlplane-1.karmalabs.corp cluster.ocs.openshift.io/openshift-storage=""
-oc label node hub-ctlplane-2.karmalabs.corp cluster.ocs.openshift.io/openshift-storage=""
+oc label node hub-ctlplane-{0,1,2}.karmalabs.corp cluster.ocs.openshift.io/openshift-storage=""
 ```
 
 Set Ceph RBD as the default storage class:
