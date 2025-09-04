@@ -11,7 +11,7 @@ spec:
       data: |
         [main]
         summary=Configuration changes profile inherited from performance created tuned
-        include=openshift-node-performance-openshift-node-performance-profile
+        include=openshift-node-performance-vpacperformance
         [sysctl]
         kernel.timer_migration=1
         [service]
