@@ -27,3 +27,7 @@ resources:
   - 27-fedora-appliance-as-template.yaml
   - dhcp-network.yaml
   - l2net.yaml
+
+# 28 and 29 as well as 25 are left out so
+# that we can target the VM's to get the
+# proper environment for configuring the interface
