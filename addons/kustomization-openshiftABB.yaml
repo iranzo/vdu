@@ -18,7 +18,7 @@ resources:
   - 16-crio-disable-wipe-master.yaml
   - 17-crio-enable-crun-master.yaml
   - 18-chrony-master.yaml
-  - 19-chrony-sync-time-once-master.yaml
+  - 19-chrony-sync-time-once-master .yaml
   - 20-ReduceMonitoringFootprint.yaml
   - 21-ReduceOLMFootprint.yaml
   - 22-TunedPerformancePatch.yaml
