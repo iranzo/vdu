@@ -56,11 +56,11 @@ spec:
       architecture: amd64
       domain:
         cpu:
-          cores: 1
-          sockets: 4
+          cores: 2
+          sockets: 2
           threads: 1
-          # dedicatedCpuPlacement: true    # This will require increasing number of CPU's in the hosts
-          # isolateEmulatorThread: true
+          dedicatedCpuPlacement: true    # This will require increasing number of CPU's in the hosts
+          isolateEmulatorThread: true
         devices:
           disks:
             - bootOrder: 1

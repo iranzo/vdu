@@ -18,15 +18,13 @@ resources:
   - 16-crio-disable-wipe-master.yaml
   - 17-crio-enable-crun-master.yaml
   - 18-chrony-master.yaml
-  - 19-chrony-sync-time-once-master .yaml
+  - 19-chrony-sync-time-once-master.yaml
   - 20-ReduceMonitoringFootprint.yaml
   - 21-ReduceOLMFootprint.yaml
   - 22-TunedPerformancePatch.yaml
   - 23-vm-project.yaml
+  - 24-abb-ssc600-appliance-as-template.yaml
+  - 27-fedora-appliance-as-template.yaml
   - dhcp-network.yaml
   - l2net.yaml
   - cpumanager-kubeletconfig.yaml
-
-# 28 and 29 as well as 25 are left out so
-# that we can target the VM's to get the
-# proper environment for configuring the interface
