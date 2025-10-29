@@ -1,5 +1,6 @@
 parameters:
   cluster: cluster
+  cpu_partitioning: True
   tag: '4.19'
   version: 'stable'
   domain: karmalabs.corp
@@ -27,8 +28,8 @@ hub:
   domain: {{ domain }}
   ctlplanes: 3
   api_ip: {{ api_ip }}
-  numcpus: 12
-  memory: 40975
+  numcpus: 8
+  memory: 32768
   disk_size: 100
   extra_disks:
   - 100
