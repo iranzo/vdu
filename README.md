@@ -41,11 +41,9 @@ The addons are applied in a specific order to configure the telco/edge computing
     - ABB SSC600 appliance template
     - Fedora VM template
     - VM instances from templates
-
-### Phase 3: Network Configuration
-
-- **DHCP Network** - Bridge network with DHCP IP assignment
-- **L2 Private Network** - Private layer-2 network for VM isolation
+16. **DHCP Network** - Bridge network with DHCP IP assignment
+17. **L2 Private Network** - Private layer-2 network for VM isolation
+18. **NFD** - Deploy Node Feature Discovery for hardware awareness
 
 ## Step-by-Step Deployment
 
@@ -115,13 +113,13 @@ Label nodes for OpenShift Data Foundation storage:
 oc label node hub-ctlplane-{0,1,2}.karmalabs.corp cluster.ocs.openshift.io/openshift-storage=""
 ```
 
-Set Ceph RBD as the default storage class:
+Set Ceph RBD as the default storage class (optional):
 
 ```bash
 oc patch storageclass ocs-storagecluster-ceph-rbd -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 ```
 
-### Enable label in the nodes for vm workload loading
+### Enable label in the nodes for vm workload using the cpumanager
 
 ```bash
 oc label node hub-ctlplane-{0,1,2}.karmalabs.corp cpumanager=true
