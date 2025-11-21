@@ -97,14 +97,6 @@ hub-ctlplane-2.karmalabs.corp   Ready    control-plane,master,worker   5d22h   v
 
 ## Post-Deployment Configuration
 
-### Cluster Upgrades
-
-If upgrading the cluster (via `oc adm upgrade`), acknowledge API changes:
-
-```bash
-oc -n openshift-config patch cm admin-acks --patch '{"data":{"ack-4.18-kube-1.32-api-removals-in-4.19":"true"}}' --type=merge
-```
-
 ### Storage Configuration (ODF/OCS)
 
 Label nodes for OpenShift Data Foundation storage:
