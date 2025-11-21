@@ -119,12 +119,6 @@ Set Ceph RBD as the default storage class (optional):
 oc patch storageclass ocs-storagecluster-ceph-rbd -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 ```
 
-### Enable label in the nodes for vm workload using the cpumanager
-
-```bash
-oc label node hub-ctlplane-{0,1,2}.karmalabs.corp cpumanager=true --overwrite=true
-```
-
 ## Virtual Machine Management
 
 ### Available VM Templates
