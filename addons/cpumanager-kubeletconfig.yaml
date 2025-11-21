@@ -6,7 +6,6 @@ metadata:
 spec:
   machineConfigPoolSelector:
     matchLabels:
-      custom-kubelet: cpumanager-enabled
       pools.operator.machineconfiguration.openshift.io/master: ""
   kubeletConfig:
     cpuManagerPolicy: static
