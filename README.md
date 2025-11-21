@@ -122,7 +122,7 @@ oc patch storageclass ocs-storagecluster-ceph-rbd -p '{"metadata": {"annotations
 ### Enable label in the nodes for vm workload using the cpumanager
 
 ```bash
-oc label node hub-ctlplane-{0,1,2}.karmalabs.corp cpumanager=true
+oc label node hub-ctlplane-{0,1,2}.karmalabs.corp cpumanager=true --overwrite=true
 ```
 
 ## Virtual Machine Management
