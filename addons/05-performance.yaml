@@ -4,6 +4,9 @@ kind: PerformanceProfile
 metadata:
   name: vpacperformance
 spec:
+  kubeletConfig:
+    cpuManagerPolicy: static
+    cpuManagerReconcilePeriod: 5s
   additionalKernelArgs:
     - "audit=0"
     - "efi=runtime"
@@ -33,8 +36,6 @@ spec:
     enabled: true
   nodeSelector:
     node-role.kubernetes.io/master: ""
-  machineConfigPoolSelector:
-    machineconfiguration.openshift.io/role: master
   workloadHints:
     highPowerConsumption: false
     perPodPowerManagement: false
@@ -43,8 +44,6 @@ spec:
 apiVersion: machineconfiguration.openshift.io/v1
 kind: MachineConfig
 metadata:
-  labels:
-    machineconfiguration.openshift.io/role: "master"
   name: 99-master-realtime
 spec:
   kernelType: realtime

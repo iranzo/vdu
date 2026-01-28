@@ -27,4 +27,3 @@ resources:
   - 27-fedora-appliance-as-template.yaml
   - dhcp-network.yaml
   - l2net.yaml
-  - cpumanager-kubeletconfig.yaml
