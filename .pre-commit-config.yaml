@@ -54,7 +54,7 @@ repos:
     rev: v6.0.0
   - repo: https://github.com/astral-sh/ruff-pre-commit
   # Ruff version.
-    rev: v0.15.15
+    rev: v0.15.16
     hooks:
   # Run the linter.
       - id: ruff
@@ -95,7 +95,7 @@ repos:
 
 # Jinja2 template validation
   - repo: https://github.com/Riverside-Healthcare/djLint
-    rev: v1.36.4
+    rev: v1.39.0
     hooks:
       - id: djlint
         files: \.(j2|jinja|jinja2|yml)$
