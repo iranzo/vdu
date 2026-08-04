@@ -7,7 +7,7 @@ repos:
         stages:
           - commit-msg
     repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.16.5
+    rev: v4.17.0
   - hooks:
       - id: check-useless-excludes
     repo: meta
@@ -54,7 +54,7 @@ repos:
     rev: v6.0.0
   - repo: https://github.com/astral-sh/ruff-pre-commit
   # Ruff version.
-    rev: v0.16.0
+    rev: v0.16.1
     hooks:
   # Run the linter.
       - id: ruff
@@ -95,7 +95,7 @@ repos:
 
 # Jinja2 template validation
   - repo: https://github.com/Riverside-Healthcare/djLint
-    rev: v1.43.0
+    rev: v1.43.2
     hooks:
       - id: djlint
         files: \.(j2|jinja|jinja2|yml)$
@@ -118,7 +118,7 @@ repos:
 
 # Dockerfile linting (if any Dockerfiles are added)
   - repo: https://github.com/hadolint/hadolint
-    rev: v2.14.0
+    rev: v2.15.1
     hooks:
       - id: hadolint-docker
 
